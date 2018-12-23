@@ -56,7 +56,7 @@ let version = "",
 // TODO: send the version to redis
 logger.info("Before dataDragon job instantiation");
 // "0 0 0 * * 4/3"
-const job = new CronJob("0 52 3 * * *", function() {
+const job = new CronJob("0 0 0 * * 4/7", function() {
   const d = new Date();
   logger.info("thursday and every 3 days 00:00");
   // get the previous version from redis
@@ -75,7 +75,7 @@ const job = new CronJob("0 52 3 * * *", function() {
       if (version === prevVersion) {
         throw new Error("Version was unchanged!!!");
       }
-      redis.set("version", version, "EX", 2160000);
+      redis.set("version", version, "EX", 2592000);
       logger.info(`Version was changed: ${version}`);
       // get lol data depending on the latest version
       axios
@@ -184,26 +184,8 @@ const job = new CronJob("0 52 3 * * *", function() {
             "dataDragon",
             JSON.stringify({ version, champs, items, summonerSpells, runes }),
             "EX",
-            2160000
+            2592000
           );
-
-          // fs.writeFile(
-          //   "./data/lolData.js",
-          //   `export const version="${version}";export const champs=${JSON.stringify(
-          //     champs
-          //   )};export const items=${JSON.stringify(
-          //     items
-          //   )};export const summonerSpells=${JSON.stringify(
-          //     summonerSpells
-          //   )};export const runes=${JSON.stringify(runes)};`,
-          //   err => {
-          //     if (err) {
-          //       logger.error(err.message);
-          //     } else {
-          //       logger.info("file written");
-          //     }
-          //   }
-          // );
         })
         .catch(err => {
           logger.error("fetching data error handler");
@@ -222,83 +204,62 @@ job.start();
 const ggElo = ["PLATPLUS", "PLATINUM", "GOLD", "SILVER", "BRONZE"];
 // TODO: test the new pipeline method
 logger.info("Before ggapi job instantiation");
-// const job = new CronJob("0 0 0/6 * * *", function() {
-//   const d = new Date();
-//   logger.info("00:00 and Every 6 hours:");
+const job = new CronJob("0 0 2/6 * * *", function() {
+  const d = new Date();
+  logger.info("02:00 and Every 6 hours:");
 
-//   ggElo.forEach(elo => {
-//     axios
-//       .all([
-//         ggapi.fetchGeneralInfo(elo),
-//         ggapi.fetchOverallData(elo),
-//         ggapi.fetchChampsList(elo),
-//         ggapi.fetchChampsData(elo)
-//       ])
-//       .then(
-//         axios.spread((general, overall, champsList, champsData) => {
-//           logger.info(`All ${elo} requests are completed`);
-//           redis
-//             .pipeline([
-//               [
-//                 "set",
-//                 `/ggapi/general/${elo}`,
-//                 JSON.stringify(general.data[0]),"EX",
-//                 2160000
-//               ],
-//               [
-//                 "set",
-//                 `/ggapi/overall/${elo}`,
-//                 JSON.stringify(overall.data[0]),"EX",
-//                 2160000
-//               ],
-//               [
-//                 "set",
-//                 `/ggapi/champsList/${elo}`,
-//                 JSON.stringify(champsList.data),"EX",
-//                 2160000
-//               ],
-//               [
-//                 "set",
-//                 `/ggapi/champsData/${elo}`,
-//                 JSON.stringify(champsData.data),"EX",
-//                 2160000
-//               ]
-//             ])
-//             .exec();
-//           // redis.set(
-//           //   `/ggapi/general/${elo}`,
-//           //   JSON.stringify(general.data[0]),
-//           //   "EX",
-//           //   // 21600
-//           //   2160000
-//           // );
-//           // redis.set(
-//           //   `/ggapi/overall/${elo}`,
-//           //   JSON.stringify(overall.data[0]),
-//           //   "EX",
-//           //   2160000
-//           // );
-//           // redis.set(
-//           //   `/ggapi/champsList/${elo}`,
-//           //   JSON.stringify(champsList.data),
-//           //   "EX",
-//           //   2160000
-//           // );
-//           // redis.set(
-//           //   `/ggapi/champsData/${elo}`,
-//           //   JSON.stringify(champsData.data),
-//           //   "EX",
-//           //   2160000
-//           // );
-//         })
-//       )
-//       .catch(err => {
-//         logger.error(err.message);
-//       });
-//   });
-// });
-// logger.info("After ggapi job instantiation");
-// job.start();
+  ggElo.forEach(elo => {
+    axios
+      .all([
+        ggapi.fetchGeneralInfo(elo),
+        ggapi.fetchOverallData(elo),
+        ggapi.fetchChampsList(elo),
+        ggapi.fetchChampsData(elo)
+      ])
+      .then(
+        axios.spread((general, overall, champsList, champsData) => {
+          logger.info(`All ${elo} requests are completed`);
+          redis
+            .pipeline([
+              [
+                "set",
+                `/ggapi/general/${elo}`,
+                JSON.stringify(general.data[0]),
+                "EX",
+                36000
+              ],
+              [
+                "set",
+                `/ggapi/overall/${elo}`,
+                JSON.stringify(overall.data[0]),
+                "EX",
+                36000
+              ],
+              [
+                "set",
+                `/ggapi/champsList/${elo}`,
+                JSON.stringify(champsList.data),
+                "EX",
+                36000
+              ],
+              [
+                "set",
+                `/ggapi/champsData/${elo}`,
+                JSON.stringify(champsData.data),
+                "EX",
+                36000
+              ]
+            ])
+            .exec();
+        })
+      )
+      .catch(err => {
+        logger.error(err.message);
+      });
+  });
+});
+logger.info("After ggapi job instantiation");
+job.start();
 
 app.use((req, res, next) => {
   const signedCookie = req.signedCookies.lolggapi;
@@ -362,7 +323,7 @@ app.get("/ggapi/general/:elo", ggRedisMiddleWare, (request, response) => {
     .then(res => {
       logger.info(`success:  ${request.path}`);
 
-      redis.set(request.path, JSON.stringify(res.data[0]), "EX", 2160000);
+      redis.set(request.path, JSON.stringify(res.data[0]), "EX", 36000);
       return response.send(res.data[0]);
     })
     .catch(err => {
@@ -382,7 +343,7 @@ app.get("/ggapi/overall/:elo", ggRedisMiddleWare, (request, response) => {
     .then(res => {
       logger.info(`success:  ${request.path}`);
 
-      redis.set(request.path, JSON.stringify(res.data[0]), "EX", 2160000);
+      redis.set(request.path, JSON.stringify(res.data[0]), "EX", 36000);
       return response.send(res.data[0]);
     })
     .catch(err => {
@@ -402,7 +363,7 @@ app.get("/ggapi/champsList/:elo", ggRedisMiddleWare, (request, response) => {
     .then(res => {
       logger.info(`success:  ${request.path}`);
 
-      redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+      redis.set(request.path, JSON.stringify(res.data), "EX", 36000);
       return response.send(res.data);
     })
     .catch(err => {
@@ -422,7 +383,7 @@ app.get("/ggapi/champsData/:elo", ggRedisMiddleWare, (request, response) => {
     .then(res => {
       logger.info(`success:  ${request.path}`);
 
-      redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+      redis.set(request.path, JSON.stringify(res.data), "EX", 36000);
       return response.send(res.data);
     })
     .catch(err => {
@@ -442,7 +403,7 @@ app.get("/ggapi/champData/:elo/:id", ggRedisMiddleWare, (request, response) => {
     .then(res => {
       logger.info(`success:  ${request.path}`);
 
-      redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+      redis.set(request.path, JSON.stringify(res.data), "EX", 21600);
       return response.send(res.data);
     })
     .catch(err => {
@@ -464,7 +425,7 @@ app.get(
       .fetchMatchup(elo, id, enemy, role)
       .then(res => {
         logger.info(`success:  ${request.path}`);
-        redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+        redis.set(request.path, JSON.stringify(res.data), "EX", 21600);
         return response.send(res.data);
       })
       .catch(err => {
@@ -538,7 +499,7 @@ app.get(
           request.path,
           JSON.stringify({ lastUpdated, ...res.data }),
           "EX",
-          2160000
+          2592000
         );
         return response.send({ lastUpdated, ...res.data });
       })
@@ -568,7 +529,7 @@ app.get(
       .then(res => {
         logger.info(`success: ${request.path}`);
 
-        redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+        redis.set(request.path, JSON.stringify(res.data), "EX", 2592000);
         return response.send(res.data);
       })
       .catch(err => {
@@ -600,7 +561,7 @@ app.get(
         if (request.query.timestamp) {
           res.data.timestamp = request.query.timestamp;
         }
-        redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+        redis.set(request.path, JSON.stringify(res.data), "EX", 2592000);
         return response.send(res.data);
       })
       .catch(err => {
@@ -628,7 +589,7 @@ app.get(
       .then(res => {
         logger.info(`success:  ${request.path}`);
 
-        redis.set(request.path, JSON.stringify(res.data), "EX", 2160000);
+        redis.set(request.path, JSON.stringify(res.data), "EX", 2592000);
         return response.send(res.data);
       })
       .catch(err => {
