@@ -1,0 +1,23 @@
+{
+  "name": "lolapi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Moka",
+  "license": "MIT",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "start": "cross-env NODE_ENV=production node index.js"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "compression": "^1.7.3",
+    "cookie-parser": "^1.4.3",
+    "cron": "^1.4.1",
+    "cross-env": "^5.2.0",
+    "express": "^4.16.3",
+    "helmet": "^3.15.0",
+    "ioredis": "^4.0.0",
+    "jsonwebtoken": "^8.4.0",
+    "winston": "^3.1.0"
+  }
+}
