@@ -14,7 +14,7 @@ module.exports = {
       ref: "origin/master",
       repo: "https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/lolapi",
       path: "/home/ubuntu/lolapi",
-      "post-deploy": "yarn install && pm2 startOrRestart ecosystem.config.js"
+      "post-deploy": "yarn install && pm2 startOrRestart ecosystem.config.js --env production"
     }
   }
 };
