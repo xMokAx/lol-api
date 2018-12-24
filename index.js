@@ -4,7 +4,6 @@ const CronJob = require("cron").CronJob;
 const ggapi = require("./ggapi");
 const lolapi = require("./lolapi");
 const axios = require("axios");
-const compression = require("compression");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
@@ -42,7 +41,6 @@ const { appsecret, redisPort, redisHost, port } = config;
 
 const app = express();
 const redis = new Redis(redisPort, redisHost);
-app.use(compression());
 app.use(helmet());
 app.use(cookieParser(appsecret));
 

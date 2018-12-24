@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "compression": "^1.7.3",
     "cookie-parser": "^1.4.3",
     "cron": "^1.4.1",
     "cross-env": "^5.2.0",
