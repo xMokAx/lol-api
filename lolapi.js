@@ -1,10 +1,11 @@
 const axios = require("axios");
 const config = require("./config");
+const { lolapikey, season } = config;
 
 const axiosLol = axios.create({
   method: "get",
   params: {
-    api_key: config.lolapikey
+    api_key: lolapikey
   }
 });
 function lolRequestConfig(url, params) {
@@ -33,7 +34,7 @@ function fetchMatchesList(region, accountId, beginIndex, endIndex) {
     lolRequestConfig(
       `https://${region}.api.riotgames.com/lol/match/v3/matchlists/by-account/${accountId}`,
       {
-        season: config.season,
+        season: season,
         beginIndex,
         endIndex
       }

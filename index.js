@@ -38,13 +38,13 @@ if (process.env.NODE_ENV === "production") {
 
 // config file
 const config = require("./config");
-const appSecret = config.appsecret;
+const { appsecret, redisPort, redisHost, port } = config;
 
 const app = express();
-const redis = new Redis(6379, "0.0.0.0");
+const redis = new Redis(redisPort, redisHost);
 app.use(compression());
 app.use(helmet());
-app.use(cookieParser(appSecret));
+app.use(cookieParser(appsecret));
 
 let version = "",
   prevVersion = "",
@@ -607,10 +607,10 @@ app.get(
   }
 );
 
-app.listen(config.port, function(err) {
+app.listen(port, function(err) {
   if (err) {
     logger.error(err.message);
   } else {
-    logger.info(`server listening on port ${config.port}`);
+    logger.info(`server listening on port ${port}`);
   }
 });

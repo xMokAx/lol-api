@@ -1,11 +1,12 @@
 const axios = require("axios");
 const config = require("./config");
+const { ggendpoint, ggapikey } = config;
 
 const axiosGg = axios.create({
   method: "get",
-  baseURL: config.ggendpoint,
+  baseURL: ggendpoint,
   params: {
-    api_key: config.ggapikey
+    api_key: ggapikey
   }
 });
 function ggRequestConfig(url, params) {

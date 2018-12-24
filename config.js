@@ -9,5 +9,10 @@ module.exports = {
   ggendpoint: "http://api.champion.gg/v2/",
   ggapikey: "1f1cabbb61c44c979853bff44c6a385f",
   port: process.env.PORT || 5000,
-  appsecret: "lolgga11jm23j"
+  appsecret: "lolgga11jm23j",
+  redisPort: 6379,
+  redisHost:
+    process.env.NODE_ENV === "production"
+      ? "loldp.xwlcev.0001.euc1.cache.amazonaws.com"
+      : "127.0.0.1"
 };
