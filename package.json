@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "start": "cross-env NODE_ENV=production node index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "restart": "pm2 startOrRestart ecosystem.config.js",
+    "deploy": "pm2 deploy ecosystem.config.js production"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -19,5 +21,12 @@
     "ioredis": "^4.0.0",
     "jsonwebtoken": "^8.4.0",
     "winston": "^3.1.0"
+  },
+  "repository": {
+    "type": "private",
+    "url": "https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/lolapi"
+  },
+  "devDependencies": {
+    "pm2": "^3.2.4"
   }
 }
