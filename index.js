@@ -56,9 +56,9 @@ let version = "",
 // TODO: send the version to redis
 logger.info("Before dataDragon job instantiation");
 // "0 0 0 * * 4/3"
-const job = new CronJob("0 0 0 * * 4/7", function() {
+const ddJob = new CronJob("0 0 0 * * 4/7", function() {
   const d = new Date();
-  logger.info("thursday and every 3 days 00:00");
+  logger.info(`thursday and every 7 days: ${d}`);
   // get the previous version from redis
   redis.get("version", function(err, result) {
     if (result) {
@@ -199,14 +199,14 @@ const job = new CronJob("0 0 0 * * 4/7", function() {
     });
 });
 logger.info("After dataDragon job instantiation");
-job.start();
+ddJob.start();
 
 const ggElo = ["PLATPLUS", "PLATINUM", "GOLD", "SILVER", "BRONZE"];
 // TODO: test the new pipeline method
 logger.info("Before ggapi job instantiation");
-const job = new CronJob("0 0 2/6 * * *", function() {
+const ggJob = new CronJob("0 0 0/6 * * *", function() {
   const d = new Date();
-  logger.info("02:00 and Every 6 hours:");
+  logger.info(`00:00 and Every 6 hours: ${d}`);
 
   ggElo.forEach(elo => {
     axios
@@ -259,7 +259,7 @@ const job = new CronJob("0 0 2/6 * * *", function() {
   });
 });
 logger.info("After ggapi job instantiation");
-job.start();
+ggJob.start();
 
 app.use((req, res, next) => {
   const signedCookie = req.signedCookies.lolggapi;
