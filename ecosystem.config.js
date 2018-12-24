@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "lolapi",
-      script: "yarn start"
+      script: "./index.js"
     }
   ],
   deploy: {
