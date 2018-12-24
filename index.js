@@ -41,7 +41,7 @@ const config = require("./config");
 const appSecret = config.appsecret;
 
 const app = express();
-const redis = new Redis();
+const redis = new Redis(6379, "0.0.0.0");
 app.use(compression());
 app.use(helmet());
 app.use(cookieParser(appSecret));
@@ -56,7 +56,7 @@ let version = "",
 // TODO: send the version to redis
 logger.info("Before dataDragon job instantiation");
 // "0 0 0 * * 4/3"
-const ddJob = new CronJob("0 0 0 * * 4/7", function() {
+const ddJob = new CronJob("0 4 5 * * *", function() {
   const d = new Date();
   logger.info(`thursday and every 7 days: ${d}`);
   // get the previous version from redis
@@ -204,7 +204,7 @@ ddJob.start();
 const ggElo = ["PLATPLUS", "PLATINUM", "GOLD", "SILVER", "BRONZE"];
 // TODO: test the new pipeline method
 logger.info("Before ggapi job instantiation");
-const ggJob = new CronJob("0 0 0/6 * * *", function() {
+const ggJob = new CronJob("0 4 5/6 * * *", function() {
   const d = new Date();
   logger.info(`00:00 and Every 6 hours: ${d}`);
 
