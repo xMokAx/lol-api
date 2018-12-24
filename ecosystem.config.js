@@ -12,7 +12,7 @@ module.exports = {
       key: "C:/Users/Moka/.ssh/lol-app.pem",
       ref: "origin/master",
       repo: "https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/lolapi",
-      path: "~/lolapi",
+      path: "./lolapi",
       "post-deploy": "yarn install && pm2 startOrRestart ecosystem.config.js"
     }
   }
