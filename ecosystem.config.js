@@ -9,7 +9,7 @@ module.exports = {
     production: {
       user: "ubuntu",
       host: "ec2-18-196-101-204.eu-central-1.compute.amazonaws.com",
-      key: "~/.ssh/lol-app.pem",
+      key: "C:/Users/Double Click/.ssh/lol-app.pem",
       ref: "origin/master",
       repo: "https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/lolapi",
       path: "/home/ubuntu/lolapi",
