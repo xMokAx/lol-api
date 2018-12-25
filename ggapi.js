@@ -19,20 +19,32 @@ function ggRequestConfig(url, params) {
 }
 
 function fetchGeneralInfo(elo) {
+  if (elo === "PLATPLUS") {
+    elo = "";
+  }
   return axiosGg.request(ggRequestConfig("general", { elo }));
 }
 
 function fetchOverallData(elo) {
+  if (elo === "PLATPLUS") {
+    elo = "";
+  }
   return axiosGg.request(ggRequestConfig("overall", { elo }));
 }
 
 function fetchChampsList(elo) {
+  if (elo === "PLATPLUS") {
+    elo = "";
+  }
   return axiosGg.request(
     ggRequestConfig("champions", { elo, abridged: true, limit: "200" })
   );
 }
 
 function fetchChampsData(elo) {
+  if (elo === "PLATPLUS") {
+    elo = "";
+  }
   return axiosGg.request(
     ggRequestConfig("champions", {
       elo,
@@ -44,6 +56,9 @@ function fetchChampsData(elo) {
 }
 
 function fetchChampData(elo, id) {
+  if (elo === "PLATPLUS") {
+    elo = "";
+  }
   return axiosGg.request(
     ggRequestConfig(`champions/${id}`, {
       elo,
@@ -54,6 +69,9 @@ function fetchChampData(elo, id) {
 }
 
 function fetchMatchup(elo, id, enemy, role) {
+  if (elo === "PLATPLUS") {
+    elo = "";
+  }
   return axiosGg.request(
     ggRequestConfig(`/champions/${id}/matchups/${enemy}/${role}`, {
       elo

@@ -298,9 +298,6 @@ app.get("/datadragon", (request, response) => {
 });
 
 const ggRedisMiddleWare = (request, response, next) => {
-  if (request.params.elo === "PLATPLUS") {
-    request.params.elo = "";
-  }
   redis.get(request.path, function(err, result) {
     if (result) {
       logger.info(`Data Found For Path: ${request.path}`);
