@@ -3,6 +3,7 @@ const Redis = require("ioredis");
 const CronJob = require("cron").CronJob;
 const ggapi = require("./ggapi");
 const lolapi = require("./lolapi");
+const ddapi = require("./ddapi");
 const axios = require("axios");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
@@ -45,16 +46,12 @@ app.use(helmet());
 app.use(cookieParser(appsecret));
 
 let version = "",
-  prevVersion = "",
-  champs = {},
-  items = {},
-  summonerSpells = {},
-  runes = {};
+  prevVersion = "";
 // TODO: prevVersion works correctly but if the server was shutdown prevVersion value will be reset so the requests will be sent
 // TODO: send the version to redis
 logger.info("Before dataDragon job instantiation");
 // "0 0 0 * * 4/3"
-const ddJob = new CronJob("0 4 5 * * *", function() {
+const ddJob = new CronJob("0 0 0 * * 4/7", function() {
   const d = new Date();
   logger.info(`thursday and every 7 days: ${d}`);
   // get the previous version from redis
@@ -64,8 +61,8 @@ const ddJob = new CronJob("0 4 5 * * *", function() {
     }
   });
 
-  axios
-    .get("https://ddragon.leagueoflegends.com/api/versions.json")
+  ddapi
+    .getVersions()
     .then(res => {
       // latest lol version
       version = res.data[0];
@@ -76,114 +73,11 @@ const ddJob = new CronJob("0 4 5 * * *", function() {
       redis.set("version", version, "EX", 2592000);
       logger.info(`Version was changed: ${version}`);
       // get lol data depending on the latest version
-      axios
-        .all([
-          axios.get(
-            `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/championFull.json`
-          ),
-          axios.get(
-            `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/item.json`
-          ),
-          axios.get(
-            `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/summoner.json`
-          ),
-          axios.get(
-            `http://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/runesReforged.json`
-          )
-        ])
-        .then(
-          axios.spread(
-            (championsRes, itemsRes, summonerSpellsRes, runesRes) => {
-              championsData = championsRes.data.data;
-
-              Object.keys(championsData).forEach(champ => {
-                const {
-                  key,
-                  id,
-                  name,
-                  title,
-                  tags,
-                  spells,
-                  passive,
-                  stats
-                } = championsData[champ];
-                champs[key] = {
-                  id: key,
-                  name: id,
-                  gameName: name,
-                  title,
-                  tags,
-                  spells: spells.map(spell => ({
-                    id: spell.id,
-                    name: spell.name,
-                    description: spell.description,
-                    cooldown: spell.cooldownBurn
-                  })),
-                  passive: {
-                    name: passive.name,
-                    description: passive.description,
-                    icon: passive.image.full
-                  },
-                  stats
-                };
-              });
-
-              itemsData = itemsRes.data.data;
-              Object.keys(itemsData).forEach(item => {
-                const { name, description, plaintext, gold } = itemsData[item];
-                items[item] = {
-                  name,
-                  description,
-                  plaintext,
-                  gold
-                };
-              });
-
-              summonerSpellsData = summonerSpellsRes.data.data;
-              Object.keys(summonerSpellsData).forEach(summonerSpell => {
-                const {
-                  key,
-                  id,
-                  name,
-                  description,
-                  summonerLevel,
-                  cooldownBurn
-                } = summonerSpellsData[summonerSpell];
-                summonerSpells[key] = {
-                  name: id,
-                  gameName: name,
-                  description,
-                  summonerLevel,
-                  cooldown: cooldownBurn
-                };
-              });
-
-              runesData = runesRes.data;
-              runesData.forEach(path => {
-                const { id, key, name, icon, slots } = path;
-                runes[id] = {
-                  id,
-                  key,
-                  name,
-                  icon
-                };
-                slots.forEach(slot => {
-                  slot.runes.forEach(rune => {
-                    runes[rune.id] = rune;
-                  });
-                });
-              });
-            }
-          )
-        )
-        .then(() => {
+      ddapi
+        .gteDataDragon(version)
+        .then(dataDragon => {
           // add the data to redis as dataDragon
-          redis.set(
-            "dataDragon",
-            JSON.stringify({ version, champs, items, summonerSpells, runes }),
-            "EX",
-            2592000
-          );
+          redis.set("dataDragon", JSON.stringify(dataDragon), "EX", 2592000);
         })
         .catch(err => {
           logger.error("fetching data error handler");
@@ -202,7 +96,7 @@ ddJob.start();
 const ggElo = ["PLATPLUS", "PLATINUM", "GOLD", "SILVER", "BRONZE"];
 // TODO: test the new pipeline method
 logger.info("Before ggapi job instantiation");
-const ggJob = new CronJob("0 4 5/6 * * *", function() {
+const ggJob = new CronJob("0 0 1/6 * * *", function() {
   const d = new Date();
   logger.info(`00:00 and Every 6 hours: ${d}`);
 
@@ -292,7 +186,34 @@ app.use((req, res, next) => {
 app.get("/datadragon", (request, response) => {
   redis.get("dataDragon", function(err, result) {
     if (result) {
-      response.send(result);
+      return response.send(result);
+    } else {
+      ddapi
+        .getVersions()
+        .then(res => {
+          const version = res.data[0];
+          redis.set("version", version, "EX", 2592000);
+          ddapi
+            .gteDataDragon(version)
+            .then(dataDragon => {
+              redis.set(
+                "dataDragon",
+                JSON.stringify(dataDragon),
+                "EX",
+                2592000
+              );
+              response.send(dataDragon);
+            })
+            .catch(err => {
+              logger.error("fetching data error handler");
+              logger.error(err.message);
+              redis.del("version");
+            });
+        })
+        .catch(err => {
+          logger.error("catch all error handler");
+          logger.error(err.message);
+        });
     }
   });
 });
