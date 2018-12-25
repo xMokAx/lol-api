@@ -168,7 +168,7 @@ app.use((req, res, next) => {
         // Remove Bearer from string
         token = token.slice(7, token.length);
       }
-      jwt.verify(token, appSecret, (err, decoded) => {
+      jwt.verify(token, appsecret, (err, decoded) => {
         if (err) {
           logger.error(err.message);
           return res.sendStatus(401);
