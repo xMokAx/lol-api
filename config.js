@@ -13,6 +13,6 @@ module.exports = {
   redisPort: 6379,
   redisHost:
     process.env.NODE_ENV === "production"
-      ? "loldp.xwlcev.0001.euc1.cache.amazonaws.com"
+      ? "lol-dp.xwlcev.0001.euc1.cache.amazonaws.com"
       : "127.0.0.1"
 };
