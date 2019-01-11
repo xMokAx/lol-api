@@ -4,7 +4,7 @@
  *
  */
 module.exports = {
-  lolapikey: "RGAPI-3424b0be-e645-42f8-8f5c-9d229eaf577c",
+  lolapikey: "RGAPI-d097cabf-f0b9-4c73-a0d8-d53c832b4a58",
   season: "11",
   ggendpoint: "http://api.champion.gg/v2/",
   ggapikey: "1f1cabbb61c44c979853bff44c6a385f",
