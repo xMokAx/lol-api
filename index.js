@@ -109,28 +109,28 @@ const ggJob = new CronJob("0 0 1/6 * * *", function() {
                 `/ggapi/general/${elo}`,
                 JSON.stringify(general.data[0]),
                 "EX",
-                36000
+                604800
               ],
               [
                 "set",
                 `/ggapi/overall/${elo}`,
                 JSON.stringify(overall.data[0]),
                 "EX",
-                36000
+                604800
               ],
               [
                 "set",
                 `/ggapi/champsList/${elo}`,
                 JSON.stringify(champsList.data),
                 "EX",
-                36000
+                604800
               ],
               [
                 "set",
                 `/ggapi/champsData/${elo}`,
                 JSON.stringify(champsData.data),
                 "EX",
-                36000
+                604800
               ]
             ])
             .exec();
