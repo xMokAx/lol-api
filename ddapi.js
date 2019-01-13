@@ -4,7 +4,7 @@ function getVersions() {
   return axios.get("https://ddragon.leagueoflegends.com/api/versions.json");
 }
 
-function gteDataDragon(version) {
+function getDataDragon(version) {
   return axios
     .all([
       axios.get(
@@ -118,5 +118,5 @@ function gteDataDragon(version) {
 
 module.exports = {
   getVersions,
-  gteDataDragon
+  getDataDragon
 };

@@ -65,7 +65,7 @@ const ddJob = new CronJob("0 0 0 * * 4/7", function() {
       logger.info(`Version was changed: ${version}`);
       // get lol data depending on the latest version
       ddapi
-        .gteDataDragon(version)
+        .getDataDragon(version)
         .then(dataDragon => {
           // add the data to redis as dataDragon
           redis.set("dataDragon", JSON.stringify(dataDragon), "EX", 2592000);
@@ -185,7 +185,7 @@ app.get("/datadragon", (request, response) => {
           const version = res.data[0];
           redis.set("version", version, "EX", 2592000);
           ddapi
-            .gteDataDragon(version)
+            .getDataDragon(version)
             .then(dataDragon => {
               redis.set(
                 "dataDragon",
