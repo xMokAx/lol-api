@@ -25,7 +25,7 @@ function fetchSummonerInfo(region, summonerName) {
 
 function fetchSummonerRank(region, summonerId) {
   return axiosLol(
-    `https://${region}.api.riotgames.com/lol/league/${lolapiversion}/positions/by-summoner/${summonerId}`
+    `https://${region}.api.riotgames.com/lol/league/${lolapiversion}/entries/by-summoner/${summonerId}`
   );
 }
 
