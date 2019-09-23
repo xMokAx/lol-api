@@ -8,13 +8,14 @@ module.exports = {
   ],
   deploy: {
     production: {
-      user: "ubuntu",
-      host: "ec2-18-185-80-58.eu-central-1.compute.amazonaws.com",
+      user: "Administrator",
+      host: "ec2-18-197-176-168.eu-central-1.compute.amazonaws.com",
       key: "C:/Users/Moka/.ssh/lol-app.pem",
       ref: "origin/master",
       repo: "https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/lolapi",
-      path: "/home/ubuntu/lolapi",
-      "post-deploy": "yarn install && pm2 startOrRestart ecosystem.config.js --env production"
+      path: "C:/Users/Administrator/Desktop/lolapi",
+      "post-deploy":
+        "yarn install && pm2 startOrRestart ecosystem.config.js --env production"
     }
   }
 };
